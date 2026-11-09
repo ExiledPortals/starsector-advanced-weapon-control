@@ -15,12 +15,24 @@ import org.magiclib.combatgui.buttons.MagicCombatButtonAction
 import org.magiclib.combatgui.buttons.MagicCombatButtonInfo
 import org.magiclib.combatgui.buttons.MagicCombatHoverTooltip
 
-class ButtonHolderPanel(private val action: MagicCombatButtonAction, private val parent: UIPanelAPI)
+class ButtonHolderPanel(private val action: MagicCombatButtonAction, private val parent: UIPanelAPI, private val isGuiOpen: () -> Boolean)
     : CustomUIPanelPlugin {
     private var position: PositionAPI? = null
     private var button: MagicCombatActionButton? = null
     var panel: UIPanelAPI? = null
+    private var wasGuiRecentlyOpened = false
+    private var lastEventTime = 0L
+    private val isRelevantEvent
+        get() = Keyboard.getEventNanoseconds() > lastEventTime
+    private val isAgcHotkey: Boolean
+        get() {
+            return (Keyboard.isKeyDown(Settings.guiHotkey())) && isRelevantEvent
+        }
+    private val isEsc
+        get() = Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) && isRelevantEvent
 
+    private val shouldClose
+        get() = (isAgcHotkey || isEsc) && !wasGuiRecentlyOpened && isGuiOpen()
     companion object{
         private val font = try {
             LazyFont.loadFont("graphics/fonts/insignia17LTAaa.fnt")
@@ -54,9 +66,21 @@ class ButtonHolderPanel(private val action: MagicCombatButtonAction, private val
             }
         }
         if(Settings.showRefitScreenButton()) button?.advance()
+        if(shouldClose) action.execute()
+        lastEventTime = Keyboard.getEventNanoseconds()
     }
 
     override fun processInput(events: MutableList<InputEventAPI>?) {
+        wasGuiRecentlyOpened = false
+        events?.filter {
+            !it.isConsumed && it.isKeyDownEvent
+        }?.firstOrNull {
+            it.eventValue == Settings.guiHotkey()
+        }?.let { event ->
+            event.consume()
+            action.execute()
+            wasGuiRecentlyOpened = true
+        }
     }
 
     override fun buttonPressed(p0: Any?) {
@@ -66,4 +90,4 @@ class ButtonHolderPanel(private val action: MagicCombatButtonAction, private val
         button = null
         parent.removeComponent(panel)
     }
-}
+}

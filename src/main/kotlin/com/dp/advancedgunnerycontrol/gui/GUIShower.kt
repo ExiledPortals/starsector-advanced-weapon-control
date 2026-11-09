@@ -30,7 +30,11 @@ class GUIShower : EveryFrameScript {
 
         if (Global.getSector().isInNewGameAdvance || Global.getCurrentState() == GameState.TITLE) return
 
-        if ((wasHotkeyPressed() || shouldOpenAgcGui) && openGunneryWindow()) shouldOpenAgcGui = false
+        if (Settings.useWeaponGroupsGui()) {
+            if ((wasHotkeyPressed() || shouldOpenAgcGui) && openGunneryWindow()) shouldOpenAgcGui = false
+        } else if (!Global.getSector().campaignUI.isShowingDialog) {
+            openClassicGui()
+        }
 
         if (Global.getSector().campaignUI.isShowingDialog) return
 
@@ -38,6 +42,12 @@ class GUIShower : EveryFrameScript {
             Global.getSector()?.campaignUI?.showInteractionDialog(SuggestedTagGui(), null)
             shouldOpenSuggestedTagGui = false
         }
+    }
+
+    private fun openClassicGui() {
+        if (!Keyboard.isKeyDown(Settings.guiHotkey()) && !shouldOpenAgcGui) return
+        Global.getSector()?.campaignUI?.showInteractionDialog(AGCGUI(), Global.getSector().playerFleet)
+        shouldOpenAgcGui = false
     }
 
     private fun wasHotkeyPressed(): Boolean {

@@ -1,5 +1,6 @@
 package com.dp.advancedgunnerycontrol.gui.refitscreen
 
+import com.dp.advancedgunnerycontrol.combatgui.agccombatgui.AGCCombatGui
 import com.dp.advancedgunnerycontrol.gui.gunnerywindow.CoreGunneryWindow
 import com.dp.advancedgunnerycontrol.gui.refitscreen.weapongroups.WeaponGroupDialogHandler
 import com.dp.advancedgunnerycontrol.settings.Settings
@@ -26,6 +27,7 @@ class RefitScreenHandler {
 
 
 
+    private var gui: RefitScreenPanel? = null
     private var gunneryWindow: CoreGunneryWindow? = null
     private var buttonHolder: ButtonHolderPanel? = null
     private val moduleManager = ModuleIdManager()
@@ -35,14 +37,9 @@ class RefitScreenHandler {
 
         if(!isRefit){
             closeGunneryWindow()
-            buttonHolder?.close()
-            buttonHolder = null
+            closeClassicButton()
             weaponGroupDialogHandler.release()
             return
-        }
-
-        if(buttonHolder == null){
-            buttonHolder = createButtonHolder()
         }
 
         val core = getCore()
@@ -50,9 +47,44 @@ class RefitScreenHandler {
         ship?.let {
             moduleManager.update(it)
         }
-        weaponGroupDialogHandler.advance(amount, core, ship)
 
+        if(Settings.useWeaponGroupsGui()){
+            closeClassicButton()
+            weaponGroupDialogHandler.advance(amount, core, ship)
+        }else{
+            closeGunneryWindow()
+            weaponGroupDialogHandler.release()
+            advanceClassicButton(amount)
+        }
+    }
+
+    private fun advanceClassicButton(amount: Float){
+        if(buttonHolder == null){
+            buttonHolder = createButtonHolder()
+        }
+        // the button holder takes care of opening/closing the GUI via button or hotkey
         buttonHolder?.advance(amount)
+    }
+
+    private fun closeClassicButton(){
+        closeGUI()
+        buttonHolder?.close()
+        buttonHolder = null
+    }
+
+    private fun openGUI(){
+        gui = createGUI()
+    }
+    private fun closeGUI(){
+        gui?.close()
+        gui = null
+    }
+    private fun toggleOpenGUI(){
+        if(gui == null){
+            openGUI()
+        }else{
+            closeGUI()
+        }
     }
 
     fun toggleGunneryWindow(): Boolean {
@@ -88,16 +120,31 @@ class RefitScreenHandler {
         return ship
     }
 
+    private fun createGUI(): RefitScreenPanel?{
+        getCore()?.let { core ->
+            val refitPanel = getRefitPanel(core) ?: return null
+            val combatGui = getShip(refitPanel)?.let { ship ->
+                AGCCombatGui(ship, true)
+            } ?: return null
+            val refitScreenPanel = RefitScreenPanel(combatGui, core)
+            val panel = Global.getSettings().createCustom(1f, 1f, refitScreenPanel) ?: return null
+            refitScreenPanel.panel = panel
+            core.addComponent(panel)?.inTL(10f, 10f)
+            return refitScreenPanel
+        }
+        return null
+    }
+
     private fun createButtonHolder(): ButtonHolderPanel?{
         getCore()?.let { core ->
             val refitPanel = getRefitPanel(core) ?: return null
             val buttonHolderPanel = ButtonHolderPanel(object: MagicCombatButtonAction {
                 override fun execute() {
-                    toggleGunneryWindow()
+                    toggleOpenGUI()
                 }
             },
                 refitPanel
-            )
+            ) { gui != null }
             val panel = Global.getSettings().createCustom(1f, 1f, buttonHolderPanel) ?: return null
             buttonHolderPanel.panel = panel
             refitPanel.addComponent(panel)?.inBR(110f, 120f)

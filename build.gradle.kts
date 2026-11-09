@@ -342,6 +342,7 @@ tasks {
                    |   # These flags disable certain parts of the UI that might cause issues on specific systems
                    |   , "enableRefitScreenIntegration" : true # <---- EDIT HERE ----
                    |   , "showRefitScreenButton" : true # <---- EDIT HERE ----
+                   |   , "useWeaponGroupsGui" : true # <---- EDIT HERE ----
                    |   , "enableWeaponHighlighting" : true # <---- EDIT HERE ----
                    |   , "enableHoverTooltips" : true # <---- EDIT HERE ----
                    |   , "enableHoverTooltipBoxes" : true # <---- EDIT HERE ----

@@ -12,6 +12,7 @@ agc_persistChangesInCombat,persistChangesInCombat,Boolean,true,,"If set to false
 agc_maxLoadouts,maxLoadouts,Int,3,,"Number of available loadouts to cycle through. Loadouts can be named in Settings.editme",,,
 agc_enableRefitScreenIntegration,enableRefitScreenIntegration,Boolean,true,,"Set to false if the refit screen integration causes any issues to disable it.",,,
 agc_showRefitScreenButton,showRefitScreenButton,Boolean,true,,"If set to false, the refit-screen integration will only be accessible via hotkey.",,,
+agc_useWeaponGroupsGui,useWeaponGroupsGui,Boolean,true,,"Gunnery controls in the weapon groups screen, and a full window on the hotkey. Set to false for the old Gunnery button and menus.",,,
 ,,,,,,,,
 ,,,,,,,,
 agc_AiHeader,AI Header,Header,Custom AI Settings,,,,,AI

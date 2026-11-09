@@ -87,10 +87,11 @@ object Settings : SettingsDefinition() {
     val enableButtonOutlines = addSetting<Boolean>("enableButtonOutlines", true, tryLunar = false)
     val enableRefitScreenIntegration = addSetting<Boolean>("enableRefitScreenIntegration", true)
     val showRefitScreenButton = addSetting<Boolean>("showRefitScreenButton", true)
+    val useWeaponGroupsGui = addSetting<Boolean>("useWeaponGroupsGui", true)
     val spamSystemPreventsDeactivation = addSetting<Boolean>("spamSystemPreventsDeactivation", false)
 
     var isAdvancedMode : Boolean by CampaignSettingDelegate("isAdvancedMode",
-        defaultValue = true,
+        defaultValue = false,
         getFromLunaSettingsIfPossible = false
     )
     var autoApplySuggestedTags : Boolean by CampaignSettingDelegate("autoApplySuggestedTags", false)
