@@ -1,6 +1,7 @@
 package com.dp.advancedgunnerycontrol.gui.refitscreen
 
-import com.dp.advancedgunnerycontrol.combatgui.agccombatgui.AGCCombatGui
+import com.dp.advancedgunnerycontrol.gui.gunnerywindow.CoreGunneryWindow
+import com.dp.advancedgunnerycontrol.gui.refitscreen.weapongroups.WeaponGroupDialogHandler
 import com.dp.advancedgunnerycontrol.settings.Settings
 import com.dp.advancedgunnerycontrol.utils.getChildren
 import com.dp.advancedgunnerycontrol.utils.hasMethodNamed
@@ -25,15 +26,18 @@ class RefitScreenHandler {
 
 
 
-    private var gui: RefitScreenPanel? = null
+    private var gunneryWindow: CoreGunneryWindow? = null
     private var buttonHolder: ButtonHolderPanel? = null
     private val moduleManager = ModuleIdManager()
+    private val weaponGroupDialogHandler = WeaponGroupDialogHandler()
     fun advance(amount: Float){
         if(!Settings.enableRefitScreenIntegration()) return
 
         if(!isRefit){
+            closeGunneryWindow()
             buttonHolder?.close()
             buttonHolder = null
+            weaponGroupDialogHandler.release()
             return
         }
 
@@ -41,27 +45,31 @@ class RefitScreenHandler {
             buttonHolder = createButtonHolder()
         }
 
-        getShip()?.let {
+        val core = getCore()
+        val ship = core?.let { getRefitPanel(it) }?.let { getShip(it, false) }
+        ship?.let {
             moduleManager.update(it)
         }
+        weaponGroupDialogHandler.advance(amount, core, ship)
 
-        // the button holder takes care of opening/closing the GUI via button or hotkey
         buttonHolder?.advance(amount)
     }
 
-    private fun openGUI(){
-        gui = createGUI()
-    }
-    private fun closeGUI(){
-        gui?.close()
-        gui = null
-    }
-    private fun toggleOpenGUI(){
-        if(gui == null){
-            openGUI()
-        }else{
-            closeGUI()
+    fun toggleGunneryWindow(): Boolean {
+        if(!Settings.enableRefitScreenIntegration() || !isRefit) return false
+        if(gunneryWindow != null){
+            closeGunneryWindow()
+            return true
         }
+        val core = getCore() ?: return false
+        val refitMember = getRefitPanel(core)?.let { getShip(it, false) }?.fleetMember
+        gunneryWindow = CoreGunneryWindow(core, refitMember, ::closeGunneryWindow)
+        return true
+    }
+
+    private fun closeGunneryWindow(){
+        gunneryWindow?.close()
+        gunneryWindow = null
     }
 
     private fun getRefitPanel(core: UIPanelAPI): UIPanelAPI?{
@@ -80,37 +88,16 @@ class RefitScreenHandler {
         return ship
     }
 
-    private fun getShip(): ShipAPI?{
-        val core = getCore() ?: return null
-        val refitPanel = getRefitPanel(core) ?: return null
-        return getShip(refitPanel, false)
-    }
-
-    private fun createGUI(): RefitScreenPanel?{
-        getCore()?.let { core ->
-            val refitPanel = getRefitPanel(core) ?: return null
-            val combatGui = getShip(refitPanel)?.let { ship ->
-                AGCCombatGui(ship, true)
-            } ?: return null
-            val refitScreenPanel = RefitScreenPanel(combatGui, core)
-            val panel = Global.getSettings().createCustom(1f, 1f, refitScreenPanel) ?: return null
-            refitScreenPanel.panel = panel
-            core.addComponent(panel)?.inTL(10f, 10f)
-            return refitScreenPanel
-        }
-        return null
-    }
-
     private fun createButtonHolder(): ButtonHolderPanel?{
         getCore()?.let { core ->
             val refitPanel = getRefitPanel(core) ?: return null
             val buttonHolderPanel = ButtonHolderPanel(object: MagicCombatButtonAction {
                 override fun execute() {
-                    toggleOpenGUI()
+                    toggleGunneryWindow()
                 }
             },
                 refitPanel
-            ) { gui != null }
+            )
             val panel = Global.getSettings().createCustom(1f, 1f, buttonHolderPanel) ?: return null
             buttonHolderPanel.panel = panel
             refitPanel.addComponent(panel)?.inBR(110f, 120f)

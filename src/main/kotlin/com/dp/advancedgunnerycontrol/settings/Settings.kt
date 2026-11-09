@@ -90,7 +90,7 @@ object Settings : SettingsDefinition() {
     val spamSystemPreventsDeactivation = addSetting<Boolean>("spamSystemPreventsDeactivation", false)
 
     var isAdvancedMode : Boolean by CampaignSettingDelegate("isAdvancedMode",
-        defaultValue = false,
+        defaultValue = true,
         getFromLunaSettingsIfPossible = false
     )
     var autoApplySuggestedTags : Boolean by CampaignSettingDelegate("autoApplySuggestedTags", false)

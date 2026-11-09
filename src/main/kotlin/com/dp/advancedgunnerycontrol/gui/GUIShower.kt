@@ -1,5 +1,6 @@
 package com.dp.advancedgunnerycontrol.gui
 
+import com.dp.advancedgunnerycontrol.gui.gunnerywindow.GunneryWindowDialog
 import com.dp.advancedgunnerycontrol.gui.refitscreen.RefitScreenHandler
 import com.dp.advancedgunnerycontrol.gui.suggesttaggui.SuggestedTagGui
 import com.dp.advancedgunnerycontrol.settings.Settings
@@ -16,6 +17,7 @@ class GUIShower : EveryFrameScript {
     override fun runWhilePaused(): Boolean = true
 
     private val refitHandler = RefitScreenHandler()
+    private var wasHotkeyDown = false
 
     companion object{
         var shouldOpenSuggestedTagGui = false
@@ -26,17 +28,29 @@ class GUIShower : EveryFrameScript {
 
         refitHandler.advance(amount)
 
-        if (Global.getSector().isInNewGameAdvance || Global.getSector().campaignUI.isShowingDialog
-            || Global.getCurrentState() == GameState.TITLE
-        ) return
+        if (Global.getSector().isInNewGameAdvance || Global.getCurrentState() == GameState.TITLE) return
 
-        if (Keyboard.isKeyDown(Settings.guiHotkey())|| shouldOpenAgcGui) {
-            Global.getSector()?.campaignUI?.showInteractionDialog(AGCGUI(), Global.getSector().playerFleet)
-            shouldOpenAgcGui = false
-        }
+        if ((wasHotkeyPressed() || shouldOpenAgcGui) && openGunneryWindow()) shouldOpenAgcGui = false
+
+        if (Global.getSector().campaignUI.isShowingDialog) return
+
         if (shouldOpenSuggestedTagGui) {
             Global.getSector()?.campaignUI?.showInteractionDialog(SuggestedTagGui(), null)
             shouldOpenSuggestedTagGui = false
         }
+    }
+
+    private fun wasHotkeyPressed(): Boolean {
+        val isHotkeyDown = Keyboard.isKeyDown(Settings.guiHotkey())
+        val wasPressed = isHotkeyDown && !wasHotkeyDown
+        wasHotkeyDown = isHotkeyDown
+        return wasPressed
+    }
+
+    private fun openGunneryWindow(): Boolean {
+        if (refitHandler.toggleGunneryWindow()) return true
+        if (Global.getSector().campaignUI.isShowingDialog) return false
+        Global.getSector().campaignUI.showInteractionDialog(GunneryWindowDialog(), Global.getSector().playerFleet)
+        return true
     }
 }

@@ -10,6 +10,7 @@ import com.dp.advancedgunnerycontrol.utils.persistTags
 import com.dp.advancedgunnerycontrol.weaponais.mapBooleanToSpecificString
 import com.dp.advancedgunnerycontrol.weaponais.tags.*
 import com.fs.starfarer.api.Global
+import com.fs.starfarer.api.combat.ShipVariantAPI
 import com.fs.starfarer.api.combat.WeaponAPI
 import com.fs.starfarer.api.fleet.FleetMemberAPI
 import org.lwjgl.input.Keyboard
@@ -39,11 +40,13 @@ fun extractRegexThresholdAsPercentageString(regex: Regex, name: String): String 
     return "${(extractRegexThreshold(regex, name) * 100f).toInt()}%"
 }
 
-fun shouldTagBeDisabled(groupIndex: Int, sh: FleetMemberAPI, tag: String): Boolean {
+fun shouldTagBeDisabled(groupIndex: Int, sh: FleetMemberAPI, tag: String): Boolean = shouldTagBeDisabled(groupIndex, sh.variant, tag)
+
+fun shouldTagBeDisabled(groupIndex: Int, variant: ShipVariantAPI, tag: String): Boolean {
     val modTag = tagNameToRegexName(tag)
-    if (pdTags.contains(modTag) && !isElligibleForPD(groupIndex, sh)) return true
-    if (ammoTags.contains(modTag) && !usesAmmo(groupIndex, sh)) return true
-    return isEverythingBlacklisted(groupIndex, sh)
+    if (pdTags.contains(modTag) && !isElligibleForPD(groupIndex, variant)) return true
+    if (ammoTags.contains(modTag) && !usesAmmo(groupIndex, variant)) return true
+    return isEverythingBlacklisted(groupIndex, variant)
 }
 
 val priorityBoilerplateText = "\nIncreases priority by a factor of ${Settings.prioXModifier()} (adjustable in Settigs.editme)." +
@@ -391,13 +394,19 @@ fun createTags(names: List<String>, weapon: WeaponAPI): List<WeaponAITagBase> {
     return names.mapNotNull { createTag(it, weapon) }.filter { it.isValid() }
 }
 
-fun applySuggestedModes(ship: FleetMemberAPI, storageIndex: Int, allowOverriding: Boolean = true, shipId: String? = null) {
+fun applySuggestedModes(
+    ship: FleetMemberAPI,
+    storageIndex: Int,
+    allowOverriding: Boolean = true,
+    shipId: String? = null,
+    variant: ShipVariantAPI = ship.variant
+) {
     val id = shipId ?: ship.id
-    val groups = ship.variant.weaponGroups
+    val groups = variant.weaponGroups
 
     groups.forEachIndexed { index, group ->
         if(allowOverriding || loadPersistentTags(id, ship, index, storageIndex).isEmpty()){
-            val weaponID = group.slots?.firstOrNull()?.let { ship.variant.getWeaponId(it) } ?: ""
+            val weaponID = group.slots?.firstOrNull()?.let { variant.getWeaponId(it) } ?: ""
             persistTags(id, ship, index, storageIndex, getSuggestedModesForWeaponId(weaponID))
         }
     }
