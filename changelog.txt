@@ -1,5 +1,8 @@
 === For Starsector 0.98a ===
 
+- 1.21.1
+feat: compatible with Starsector 0.98a and 0.98.5a
+
 - 1.21.0
 feat: Gunnery controls are now part of the refit screen's weapon groups dialog (press Gunnery to expand)
 feat: ship preview in the expanded dialog. Hovering a weapon, tag or fire mode shows its group's weapon arcs
