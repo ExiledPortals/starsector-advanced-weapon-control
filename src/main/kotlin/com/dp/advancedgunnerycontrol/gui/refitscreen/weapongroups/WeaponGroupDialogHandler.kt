@@ -43,6 +43,6 @@ class WeaponGroupDialogHandler {
 
     private fun attach(dialog: WeaponGroupDialogV2) {
         attachedDialog = dialog
-        extension = if (Settings.enablePersistentModes()) WeaponGroupDialogExtension(dialog) else null
+        extension = if (Settings.enablePersistentModes()) DialogPanels.create(dialog)?.let { WeaponGroupDialogExtension(dialog, it) } else null
     }
 }

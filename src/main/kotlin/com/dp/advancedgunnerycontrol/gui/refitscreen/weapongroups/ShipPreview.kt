@@ -30,7 +30,7 @@ private class ShipPreviewPlugin(private val hoveredSlotIds: () -> List<String>) 
         }
     }
 
-    private fun hoveredSlots(shownShip: Ship) = hoveredSlotIds().mapNotNull { shownShip.hullSpec.getWeaponSlotAPI(it) }
+    private fun hoveredSlots(shownShip: Ship) = hoveredSlotIds().mapNotNull { (shownShip as ShipAPI).hullSpec.getWeaponSlotAPI(it) }
 
     private fun clipTo(area: PositionAPI) {
         val scale = Global.getSettings().screenScaleMult

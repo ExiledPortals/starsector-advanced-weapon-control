@@ -6,8 +6,8 @@ import com.fs.starfarer.api.ui.Alignment
 import com.fs.starfarer.api.ui.ButtonAPI
 import com.fs.starfarer.api.ui.CustomPanelAPI
 import com.fs.starfarer.api.ui.CutStyle
+import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.api.util.Misc
-import com.fs.starfarer.coreui.refit.wgd2.WeaponGroupDialogV2
 import org.lwjgl.input.Keyboard
 
 private const val BUTTON_WIDTH = 143f
@@ -23,7 +23,7 @@ private class PressListener : BaseCustomUIPanelPlugin() {
     }
 }
 
-class GunneryToggleButton(private val dialog: WeaponGroupDialogV2, private val onPressed: () -> Unit) {
+class GunneryToggleButton(private val innerPanel: UIPanelAPI, private val onPressed: () -> Unit) {
     private var panel: CustomPanelAPI? = null
     private var button: ButtonAPI? = null
     private var pressListener = PressListener()
@@ -47,7 +47,7 @@ class GunneryToggleButton(private val dialog: WeaponGroupDialogV2, private val o
         )
         newButton.setShortcut(Keyboard.KEY_E, true)
         newPanel.addUIElement(element).inTL(0f, 0f)
-        dialog.innerPanel.addComponent(newPanel).inBL(BUTTON_LEFT, BUTTON_BOTTOM)
+        innerPanel.addComponent(newPanel).inBL(BUTTON_LEFT, BUTTON_BOTTOM)
         panel = newPanel
         button = newButton
     }
@@ -61,7 +61,7 @@ class GunneryToggleButton(private val dialog: WeaponGroupDialogV2, private val o
     }
 
     private fun remove() {
-        panel?.let { dialog.innerPanel.removeComponent(it) }
+        panel?.let { innerPanel.removeComponent(it) }
         panel = null
         button = null
     }
