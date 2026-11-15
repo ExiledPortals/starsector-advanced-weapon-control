@@ -29,6 +29,11 @@ class WeaponGroupDialogHandler {
         extension = null
     }
 
+    fun abandon() {
+        extension?.restoreVanilla()
+        release()
+    }
+
     private fun findDialog(core: UIPanelAPI): WeaponGroupDialogV2? {
         if (lookupFailures >= MAX_LOOKUP_FAILURES) return null
         val dialogParent = invokeMethodByName(

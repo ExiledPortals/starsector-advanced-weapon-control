@@ -30,9 +30,9 @@ class GUIShower : EveryFrameScript {
 
         if (Global.getSector().isInNewGameAdvance || Global.getCurrentState() == GameState.TITLE) return
 
-        if (Settings.useWeaponGroupsGui()) {
-            if ((wasHotkeyPressed() || shouldOpenAgcGui) && openGunneryWindow()) shouldOpenAgcGui = false
-        } else if (!Global.getSector().campaignUI.isShowingDialog) {
+        if (NewGuiFallback.isActive) {
+            advanceNewGui()
+        } else {
             openClassicGui()
         }
 
@@ -44,7 +44,18 @@ class GUIShower : EveryFrameScript {
         }
     }
 
+    private fun advanceNewGui() {
+        if (!wasHotkeyPressed() && !shouldOpenAgcGui) return
+        val opened = NewGuiFallback.guarded("gunnery window") { openGunneryWindow() }
+        if (opened == null) {
+            openClassicGui()
+        } else if (opened) {
+            shouldOpenAgcGui = false
+        }
+    }
+
     private fun openClassicGui() {
+        if (Global.getSector().campaignUI.isShowingDialog) return
         if (!Keyboard.isKeyDown(Settings.guiHotkey()) && !shouldOpenAgcGui) return
         Global.getSector()?.campaignUI?.showInteractionDialog(AGCGUI(), Global.getSector().playerFleet)
         shouldOpenAgcGui = false

@@ -36,6 +36,19 @@ class WeaponGroupDialogExtension(private val dialog: WeaponGroupDialogV2, privat
         }
     }
 
+    fun restoreVanilla() {
+        gunneryPanel?.dispose()
+        gunneryPanel = null
+        shipPreview?.dispose()
+        shipPreview = null
+        toggleButton.remove()
+        if (phase == DialogPhase.COLLAPSED) return
+        vanillaParts.showGroupTable()
+        panels.dialogComponent.position.setSize(originalWidth, originalHeight)
+        vanillaParts.fitTitleToDialogWidth(originalWidth)
+        phase = DialogPhase.COLLAPSED
+    }
+
     private fun toggle() {
         when (phase) {
             DialogPhase.COLLAPSED -> startExpanding()

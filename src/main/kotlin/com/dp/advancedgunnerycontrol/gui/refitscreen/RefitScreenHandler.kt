@@ -1,6 +1,7 @@
 package com.dp.advancedgunnerycontrol.gui.refitscreen
 
 import com.dp.advancedgunnerycontrol.combatgui.agccombatgui.AGCCombatGui
+import com.dp.advancedgunnerycontrol.gui.NewGuiFallback
 import com.dp.advancedgunnerycontrol.gui.gunnerywindow.CoreGunneryWindow
 import com.dp.advancedgunnerycontrol.gui.refitscreen.weapongroups.WeaponGroupDialogHandler
 import com.dp.advancedgunnerycontrol.settings.Settings
@@ -48,12 +49,16 @@ class RefitScreenHandler {
             moduleManager.update(it)
         }
 
-        if(Settings.useWeaponGroupsGui()){
-            closeClassicButton()
-            weaponGroupDialogHandler.advance(amount, core, ship)
+        if(NewGuiFallback.isActive){
+            NewGuiFallback.guarded("refit screen"){
+                closeClassicButton()
+                weaponGroupDialogHandler.advance(amount, core, ship)
+            }
         }else{
-            closeGunneryWindow()
-            weaponGroupDialogHandler.release()
+            NewGuiFallback.guarded("refit screen cleanup"){
+                closeGunneryWindow()
+                weaponGroupDialogHandler.abandon()
+            }
             advanceClassicButton(amount)
         }
     }

@@ -1,5 +1,7 @@
 package com.dp.advancedgunnerycontrol.gui.gunnerywindow
 
+import com.dp.advancedgunnerycontrol.gui.GUIShower
+import com.dp.advancedgunnerycontrol.gui.NewGuiFallback
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin
@@ -17,7 +19,13 @@ private class GunneryWindowDelegate(private val dialog: InteractionDialogAPI) : 
     override fun init(panel: CustomPanelAPI, callbacks: CustomVisualDialogDelegate.DialogCallbacks) {
         this.callbacks = callbacks
         plugin.panel = panel
-        plugin.window = GunneryWindow(panel, fullWindowWidth(), fullWindowHeight(), Global.getSector().playerFleet.flagship)
+        plugin.window = NewGuiFallback.guarded("gunnery window") {
+            GunneryWindow(panel, fullWindowWidth(), fullWindowHeight(), Global.getSector().playerFleet.flagship)
+        }
+        if (plugin.window == null) {
+            GUIShower.shouldOpenAgcGui = true
+            callbacks.dismissDialog()
+        }
     }
 
     override fun getCustomPanelPlugin(): CustomUIPanelPlugin = plugin

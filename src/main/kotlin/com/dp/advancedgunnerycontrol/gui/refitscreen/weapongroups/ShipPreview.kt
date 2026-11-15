@@ -1,5 +1,6 @@
 package com.dp.advancedgunnerycontrol.gui.refitscreen.weapongroups
 
+import com.dp.advancedgunnerycontrol.gui.NewGuiFallback
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin
 import com.fs.starfarer.api.combat.ShipAPI
@@ -17,6 +18,10 @@ private class ShipPreviewPlugin(private val hoveredSlotIds: () -> List<String>) 
     var ship: Ship? = null
 
     override fun render(alphaMult: Float) {
+        NewGuiFallback.guarded("ship preview") { renderPreview(alphaMult) }
+    }
+
+    private fun renderPreview(alphaMult: Float) {
         val area = panel?.position ?: return
         val shownShip = ship ?: return
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS)

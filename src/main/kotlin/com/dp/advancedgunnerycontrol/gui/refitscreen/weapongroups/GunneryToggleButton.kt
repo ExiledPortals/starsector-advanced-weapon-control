@@ -60,7 +60,7 @@ class GunneryToggleButton(private val innerPanel: UIPanelAPI, private val onPres
         onPressed()
     }
 
-    private fun remove() {
+    fun remove() {
         panel?.let { innerPanel.removeComponent(it) }
         panel = null
         button = null

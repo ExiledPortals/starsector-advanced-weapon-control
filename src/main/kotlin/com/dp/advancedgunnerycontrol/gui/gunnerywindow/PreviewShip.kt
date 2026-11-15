@@ -10,7 +10,7 @@ private const val PREVIEW_FACING = 90f
 
 fun createPreviewShip(member: FleetMemberAPI): Ship? {
     val fleetMember = member as? FleetMember ?: return null
-    if (!RefitAdvanceFlag.isSupported) return null
+    check(RefitAdvanceFlag.isSupported) { "The refit advance flag was not found" }
     return try {
         val ship = fleetMember.instantiateForCombat(null, 0, null)
         ship.setFleetMember(fleetMember)

@@ -1,5 +1,6 @@
 package com.dp.advancedgunnerycontrol.gui.gunnerywindow
 
+import com.dp.advancedgunnerycontrol.gui.NewGuiFallback
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin
 import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.ui.CustomPanelAPI
@@ -29,7 +30,15 @@ class GunneryWindowPlugin(private val onCloseRequested: () -> Unit) : BaseCustom
     }
 
     override fun advance(amount: Float) {
-        window?.advance()
+        if (!advanceWindow()) onCloseRequested()
+    }
+
+    private fun advanceWindow(): Boolean {
+        if (!NewGuiFallback.isActive) return false
+        return NewGuiFallback.guarded("gunnery window") {
+            window?.advance()
+            true
+        } == true
     }
 
     override fun processInput(events: MutableList<InputEventAPI>?) {
