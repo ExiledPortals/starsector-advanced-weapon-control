@@ -1,6 +1,6 @@
 # Advanced Weapon Control - Starsector Mod #
 
-![Cover Image](imgs/agc.png "Cover Image")
+![Gunnery controls in the weapon groups screen](imgs/weapon-groups.png "Gunnery controls in the weapon groups screen")
 
 This is a utility mod that allows you to set your auto-fire weapon groups to different modes.
 For example, in PD-Only mode, weapons will ONLY fire at missiles and fighters, not at enemy ships.
@@ -9,20 +9,35 @@ There are many modes, check out the full list of available modes below!
 Sections of this readme are roughly ordered by importance. For the most important stuff, stop after Settings.
 
 Note: If you don't have a markdown renderer handy, you can read the online version at 
-<https://github.com/DesperatePeter/starsector-advanced-weapon-control/blob/master/README.md>
+<https://github.com/ExiledPortals/starsector-advanced-weapon-control/blob/master/README.md>
 
 Also visit the forums post: <https://fractalsoftworks.com/forum/index.php?topic=21280.0>
 
 ## TL;DR Instructions ##
 
 - Press the "J" key in combat to open up a GUI (select an ally via "R" key beforehand to modify their modes)
-- Press the "J" key in the campaign map to open a GUI
+- Outside combat, open the refit screen's weapon groups dialog and press "Gunnery", or press the "J" key (see below)
 - By default, firing modes are automatically saved/loaded between combats (per ship)
 - (optional) edit Starsector/mods/AdvancedGunneryControl/Settings.editme or use LunaSettings to customize the mod behavior.
 
+### Opening the Gunnery UI outside combat ###
+
+The Gunnery controls are part of the refit screen's weapon groups dialog:
+
+1. Open the refit screen and select a ship.
+2. Click the weapon groups button to open the "Manage weapon groups" dialog.
+3. Click "Gunnery" (or press "E") at the bottom of the dialog. The dialog expands and shows the tags, ship AI modes
+   and loadouts. Each of your weapon groups gets its own section.
+4. Click "Collapse" (or press "E") to return to the normal weapon groups table.
+
+Pressing the "J" key anywhere outside combat (campaign map, refit screen) opens the full Gunnery window instead.
+Select a ship from the list on the left, and press "Esc" to close it.
+
+To get the old Gunnery button and menus back, turn off "useWeaponGroupsGui" in the LunaLib settings.
+
 ## Installation ##
 
-Simply download the latest release from <https://github.com/DesperatePeter/starsector-advanced-weapon-control/releases> 
+Simply download the latest release from <https://github.com/ExiledPortals/starsector-advanced-weapon-control/releases> 
 and unzip it in your mods folder. 
 If you install a new version, please make sure to delete the old folder before doing so. Backup you Settings.editme 
 if you wish to keep it.
@@ -45,9 +60,8 @@ You can also set ship AI modes in a very similar fashion. These will only affect
 ### Gunnery Control GUI ###
 
 If you don't like having to set up your ships firing modes during (simulated) combat, there is also a campaign GUI available.
-Simply press the "J"-Key while on the campaign map, and the interface will guide you through configuring your
-firing modes. Unfortunately, I **can't directly interface with the ship refit screen**, which would be much better,
-so this is the best I can do.
+Set up your firing modes in the refit screen's weapon groups dialog (see above), or press the "J"-Key outside combat, and the interface will guide you through configuring your
+firing modes.
 
 ### Loadouts ###
 

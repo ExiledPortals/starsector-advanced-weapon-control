@@ -1,5 +1,11 @@
 === For Starsector 0.98a ===
 
+- 1.21.0
+feat: Gunnery controls are now part of the refit screen's weapon groups dialog (press Gunnery to expand)
+feat: ship preview in the expanded dialog. Hovering a weapon, tag or fire mode shows its group's weapon arcs
+feat: J outside combat opens a full Gunnery window with a ship list, preview and all weapon groups. Esc closes it
+feat: LunaLib option useWeaponGroupsGui (default on). Turn it off for the old Gunnery button and menus
+
 - 1.20.0
 feat: overloaded tag now also considers venting targets as valid
 fix: clarify what TgtShields tag means
