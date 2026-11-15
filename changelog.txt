@@ -1,5 +1,8 @@
 === For Starsector 0.98a ===
 
+- 1.21.2
+feat: if the new Gunnery UI fails (e.g. on an unsupported game version), fall back to the old Gunnery UI instead of crashing
+
 - 1.21.1
 feat: compatible with Starsector 0.98a and 0.98.5a
 
