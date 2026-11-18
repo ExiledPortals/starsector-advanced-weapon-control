@@ -11,6 +11,10 @@ class DialogPanels private constructor(
     val dialogParent: UIPanelAPI,
     val table: UIComponentAPI
 ) {
+    fun resize(width: Float, height: Float) {
+        checkNotNull(invokeMethodByName("setSize", dialogComponent, width, height)) { "The dialog could not be resized" }
+    }
+
     companion object {
         fun create(dialog: WeaponGroupDialogV2): DialogPanels? {
             val innerPanel = invokeMethodByName("getInnerPanel", dialog) as? UIPanelAPI ?: return null

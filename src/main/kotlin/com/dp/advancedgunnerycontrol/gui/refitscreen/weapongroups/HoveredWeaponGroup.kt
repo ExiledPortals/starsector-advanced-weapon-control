@@ -12,7 +12,8 @@ class HoveredWeaponGroup(private val dialog: WeaponGroupDialogV2, private val ta
         val mouseX = interfaceMouseX()
         val mouseY = interfaceMouseY()
         if (!table.position.containsPoint(mouseX, mouseY)) return emptyList()
-        val hoveredRow = dialog.table.rows.firstOrNull { (it as UIComponentAPI).position.containsPoint(mouseX, mouseY) } ?: return emptyList()
+        val rows: List<*> = dialog.table.rows
+        val hoveredRow = rows.firstOrNull { (it as UIComponentAPI).position.containsPoint(mouseX, mouseY) } ?: return emptyList()
         val slotId = (invokeMethodByName("getSlot", hoveredRow) as? WeaponSlotAPI)?.id ?: return emptyList()
         return dialog.variant.weaponGroups.firstOrNull { slotId in it.slots }?.slots ?: listOf(slotId)
     }

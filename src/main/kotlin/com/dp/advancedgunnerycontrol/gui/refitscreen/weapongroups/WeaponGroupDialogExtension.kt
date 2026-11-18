@@ -44,7 +44,7 @@ class WeaponGroupDialogExtension(private val dialog: WeaponGroupDialogV2, privat
         toggleButton.remove()
         if (phase == DialogPhase.COLLAPSED) return
         vanillaParts.showGroupTable()
-        panels.dialogComponent.position.setSize(originalWidth, originalHeight)
+        panels.resize(originalWidth, originalHeight)
         vanillaParts.fitTitleToDialogWidth(originalWidth)
         phase = DialogPhase.COLLAPSED
     }
@@ -90,7 +90,7 @@ class WeaponGroupDialogExtension(private val dialog: WeaponGroupDialogV2, privat
         val eased = progress * progress * (3f - 2f * progress)
         val width = originalWidth + (targetWidth() - originalWidth) * eased
         val height = originalHeight + (targetHeight() - originalHeight) * eased
-        panels.dialogComponent.position.setSize(width, height)
+        panels.resize(width, height)
         vanillaParts.fitTitleToDialogWidth(width)
     }
 

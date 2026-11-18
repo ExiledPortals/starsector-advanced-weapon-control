@@ -14,8 +14,6 @@ import java.awt.Color
 import java.lang.invoke.MethodHandle
 
 private const val LINE_TEXTURE_PATH = "graphics/hud/line4x4.png"
-private const val LINE_RENDERER = "com.fs.starfarer.renderers.E"
-private const val TEXTURE_LOADER_METHOD = "Ò00000"
 private const val MOUNT_ALPHA_METHOD = "Ô00000"
 private const val RENDER_METHOD = "o00000"
 private const val MOUNT_RADIUS = 40f
@@ -24,11 +22,24 @@ private const val BUILT_IN_MOUNT_ALPHA = 0.3f
 private const val BUILT_IN_MOUNT_SCALE = 0.66f
 private const val MAX_ALPHA = 255f
 
-private class RendererClassNames(val textureLoader: String, val texture: String, val mountRing: String)
+private class RendererClassNames(
+    val textureLoader: String,
+    val textureLoaderMethod: String,
+    val texture: String,
+    val lineRenderer: String,
+    val mountRing: String
+)
 
 private val knownRendererClassNames = listOf(
-    RendererClassNames("com.fs.graphics.oOoO", "com.fs.graphics.Object", "com.fs.starfarer.renderers.M"),
-    RendererClassNames("com.fs.graphics.H", "com.fs.graphics.C", "com.fs.starfarer.renderers.L")
+    RendererClassNames(
+        "com.fs.graphics.oOoO", "Ò00000", "com.fs.graphics.Object", "com.fs.starfarer.renderers.E", "com.fs.starfarer.renderers.M"
+    ),
+    RendererClassNames(
+        "com.fs.graphics.H", "Ò00000", "com.fs.graphics.C", "com.fs.starfarer.renderers.E", "com.fs.starfarer.renderers.L"
+    ),
+    RendererClassNames(
+        "com.fs.graphics.null", "new", "com.fs.graphics.C", "com.fs.starfarer.renderers.class", "com.fs.starfarer.renderers.M"
+    )
 )
 
 class StrokeStyle(val color: Color, val width: Float, val alpha: Float)
@@ -95,7 +106,7 @@ class GameRenderers private constructor(private val lines: LineHandles, private 
 
         private fun lineHandles(names: RendererClassNames, textureType: Class<*>): LineHandles {
             val loader = loadGameClass(names.textureLoader)
-            val renderer = loadGameClass(LINE_RENDERER)
+            val renderer = loadGameClass(names.lineRenderer)
             val edgeSignature = signature(
                 voidType, textureType, floatType, floatType, floatType, floatType, floatType,
                 Color::class.java, floatType, floatType, floatType, booleanType
@@ -105,7 +116,7 @@ class GameRenderers private constructor(private val lines: LineHandles, private 
                 Color::class.java, intType, intType, floatType
             )
             return LineHandles(
-                gameLookup.findStatic(loader, TEXTURE_LOADER_METHOD, signature(textureType, String::class.java)),
+                gameLookup.findStatic(loader, names.textureLoaderMethod, signature(textureType, String::class.java)),
                 gameLookup.findStatic(renderer, RENDER_METHOD, edgeSignature),
                 gameLookup.findStatic(renderer, RENDER_METHOD, arcSignature)
             )
