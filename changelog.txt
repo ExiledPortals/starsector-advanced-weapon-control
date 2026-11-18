@@ -1,5 +1,9 @@
 === For Starsector 0.98a ===
 
+- 1.21.3
+fix: the weapon groups dialog now resizes properly when Gunnery is expanded
+fix: compatible with Starsector 0.98.5a-RC7
+
 - 1.21.2
 feat: if the new Gunnery UI fails (e.g. on an unsupported game version), fall back to the old Gunnery UI instead of crashing
 
