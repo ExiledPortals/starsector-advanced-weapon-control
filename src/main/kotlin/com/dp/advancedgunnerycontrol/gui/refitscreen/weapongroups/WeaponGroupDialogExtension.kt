@@ -27,6 +27,7 @@ class WeaponGroupDialogExtension(private val dialog: WeaponGroupDialogV2, privat
     }
 
     fun advance(amount: Float, ship: ShipAPI?) {
+        keepAllWeaponGroups()
         toggleButton.pollPressed()
         when (phase) {
             DialogPhase.EXPANDING -> grow(amount)
@@ -47,6 +48,10 @@ class WeaponGroupDialogExtension(private val dialog: WeaponGroupDialogV2, privat
         panels.resize(originalWidth, originalHeight)
         vanillaParts.fitTitleToDialogWidth(originalWidth)
         phase = DialogPhase.COLLAPSED
+    }
+
+    private fun keepAllWeaponGroups() {
+        repeat(WEAPON_GROUP_COUNT) { dialog.variant.getGroup(it) }
     }
 
     private fun toggle() {
