@@ -4,10 +4,10 @@
     "name": "AdvancedGunneryControl",
     "author": "DesperatePeter",
     "utility": "true",
-    "version": { "major":"1", "minor": "21", "patch": "4" },
+    "version": { "major":"1", "minor": "21", "patch": "5" },
     "description": "A mod that allows fine-tuning of autofire. Press J-key in combat or on the campaign map to access.",
     "gameVersion": "0.98a",
-    "jars":["jars/agc/AdvancedGunneryControl/1.21.4/AdvancedGunneryControl-1.21.4.jar"],
+    "jars":["jars/agc/AdvancedGunneryControl/1.21.5/AdvancedGunneryControl-1.21.5.jar"],
     "modPlugin":"com.dp.advancedgunnerycontrol.WeaponControlBasePlugin",
     "dependencies": [
         {

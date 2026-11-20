@@ -27,18 +27,26 @@ private class RendererClassNames(
     val textureLoaderMethod: String,
     val texture: String,
     val lineRenderer: String,
+    val lineRendererMethod: String,
     val mountRing: String
 )
 
 private val knownRendererClassNames = listOf(
     RendererClassNames(
-        "com.fs.graphics.oOoO", "Ò00000", "com.fs.graphics.Object", "com.fs.starfarer.renderers.E", "com.fs.starfarer.renderers.M"
+        "com.fs.graphics.oOoO", "Ò00000", "com.fs.graphics.Object",
+        "com.fs.starfarer.renderers.E", RENDER_METHOD, "com.fs.starfarer.renderers.M"
     ),
     RendererClassNames(
-        "com.fs.graphics.H", "Ò00000", "com.fs.graphics.C", "com.fs.starfarer.renderers.E", "com.fs.starfarer.renderers.L"
+        "com.fs.graphics.H", "Ò00000", "com.fs.graphics.C",
+        "com.fs.starfarer.renderers.E", RENDER_METHOD, "com.fs.starfarer.renderers.L"
     ),
     RendererClassNames(
-        "com.fs.graphics.null", "new", "com.fs.graphics.C", "com.fs.starfarer.renderers.class", "com.fs.starfarer.renderers.M"
+        "com.fs.graphics.null", "new", "com.fs.graphics.C",
+        "com.fs.starfarer.renderers.class", RENDER_METHOD, "com.fs.starfarer.renderers.M"
+    ),
+    RendererClassNames(
+        "com.fs.graphics.G", "Ò00000", "com.fs.graphics.Texture",
+        "com.fs.starfarer.renderers.E", "super", "com.fs.starfarer.renderers.M"
     )
 )
 
@@ -117,8 +125,8 @@ class GameRenderers private constructor(private val lines: LineHandles, private 
             )
             return LineHandles(
                 gameLookup.findStatic(loader, names.textureLoaderMethod, signature(textureType, String::class.java)),
-                gameLookup.findStatic(renderer, RENDER_METHOD, edgeSignature),
-                gameLookup.findStatic(renderer, RENDER_METHOD, arcSignature)
+                gameLookup.findStatic(renderer, names.lineRendererMethod, edgeSignature),
+                gameLookup.findStatic(renderer, names.lineRendererMethod, arcSignature)
             )
         }
 

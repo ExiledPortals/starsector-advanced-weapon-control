@@ -1,5 +1,8 @@
 === For Starsector 0.98a ===
 
+- 1.21.5
+fix: compatible with Starsector 0.98.5a-RC8
+
 - 1.21.4
 fix: confirming the weapon groups dialog no longer crashes after Auto-assign leaves fewer than seven groups
 
