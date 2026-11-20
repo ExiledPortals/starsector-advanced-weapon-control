@@ -4,7 +4,6 @@ import com.dp.advancedgunnerycontrol.utils.DeclaredMethod
 import com.dp.advancedgunnerycontrol.utils.booleanType
 import com.dp.advancedgunnerycontrol.utils.declaredMethods
 import com.dp.advancedgunnerycontrol.utils.floatType
-import com.dp.advancedgunnerycontrol.utils.gameClassesInPackage
 import com.dp.advancedgunnerycontrol.utils.gameLookup
 import com.dp.advancedgunnerycontrol.utils.intType
 import com.dp.advancedgunnerycontrol.utils.loadGameClass
@@ -14,8 +13,18 @@ import com.fs.graphics.Sprite
 import com.fs.starfarer.api.combat.WeaponAPI
 import java.awt.Color
 
-private const val RENDERERS_PACKAGE = "com/fs/starfarer/renderers/"
+private const val RENDERERS_PACKAGE = "com.fs.starfarer.renderers."
 const val TEXTURE_GETTER = "getTexture"
+
+private val reservedWordNames = listOf(
+    "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "default", "do",
+    "double", "else", "enum", "extends", "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof",
+    "int", "interface", "long", "native", "new", "null", "package", "private", "protected", "public", "return", "short",
+    "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile",
+    "while", "Object", "String"
+)
+
+private val candidateClassNames = ('A'..'Z').map { it.toString() } + ('a'..'z').map { it.toString() } + reservedWordNames
 
 class LineRendererMembers(val type: Class<*>, val drawEdgeName: String, val drawArcName: String)
 
@@ -25,7 +34,7 @@ class DiscoveredRenderers(val textureType: Class<*>, val lineRenderer: LineRende
 
 fun discoverRenderers(): DiscoveredRenderers? {
     val textureType = findTextureType() ?: return null
-    val candidates = gameClassesInPackage(RENDERERS_PACKAGE).mapNotNull { loadOrNull(it) }
+    val candidates = candidateClassNames.mapNotNull { loadOrNull(RENDERERS_PACKAGE + it) }
     val lineRenderer = candidates.mapNotNull { lineRendererIn(it, textureType) }.singleOrNull() ?: return null
     val mountRing = candidates.mapNotNull { mountRingIn(it) }.singleOrNull() ?: return null
     return DiscoveredRenderers(textureType, lineRenderer, mountRing)

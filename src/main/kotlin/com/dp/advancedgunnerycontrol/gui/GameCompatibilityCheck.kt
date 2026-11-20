@@ -50,7 +50,17 @@ object GameCompatibilityCheck {
     fun logProblems() {
         val logger = Global.getLogger(GameCompatibilityCheck::class.java)
         compatibilityChecks.forEach { check ->
-            check.findProblem()?.let { logger.warn("${check.feature} unavailable: $it. ${check.consequence}") }
+            findProblem(check)?.let { logger.warn("${check.feature} unavailable: $it. ${check.consequence}") }
+        }
+    }
+
+    private fun findProblem(check: CompatibilityCheck): String? {
+        return try {
+            check.findProblem()
+        } catch (exception: RuntimeException) {
+            exception.toString()
+        } catch (error: LinkageError) {
+            error.toString()
         }
     }
 }
