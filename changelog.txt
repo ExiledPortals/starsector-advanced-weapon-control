@@ -1,5 +1,9 @@
 === For Starsector 0.98a ===
 
+- 1.21.6
+fix: weapon arcs and the refit preview now find the game's internals by structure, so game updates that rename them no longer break the new UI
+feat: the log names each feature that is unavailable on an unsupported game version
+
 - 1.21.5
 fix: compatible with Starsector 0.98.5a-RC8
 

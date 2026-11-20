@@ -1,12 +1,10 @@
 package com.dp.advancedgunnerycontrol.gui.refitscreen.weapongroups
 
-import com.dp.advancedgunnerycontrol.utils.booleanType
 import com.dp.advancedgunnerycontrol.utils.floatType
 import com.dp.advancedgunnerycontrol.utils.gameLookup
-import com.dp.advancedgunnerycontrol.utils.intType
-import com.dp.advancedgunnerycontrol.utils.loadGameClass
 import com.dp.advancedgunnerycontrol.utils.signature
 import com.dp.advancedgunnerycontrol.utils.voidType
+import com.fs.graphics.Sprite
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.combat.WeaponAPI
 import com.fs.starfarer.api.loading.WeaponSlotAPI
@@ -15,46 +13,18 @@ import java.lang.invoke.MethodHandle
 
 private const val LINE_TEXTURE_PATH = "graphics/hud/line4x4.png"
 private const val MOUNT_ALPHA_METHOD = "Ô00000"
-private const val RENDER_METHOD = "o00000"
+private const val MOUNT_SCALE_METHOD = "o00000"
 private const val MOUNT_RADIUS = 40f
 private const val MOUNT_LINE_WIDTH = 2.5f
 private const val BUILT_IN_MOUNT_ALPHA = 0.3f
 private const val BUILT_IN_MOUNT_SCALE = 0.66f
 private const val MAX_ALPHA = 255f
 
-private class RendererClassNames(
-    val textureLoader: String,
-    val textureLoaderMethod: String,
-    val texture: String,
-    val lineRenderer: String,
-    val lineRendererMethod: String,
-    val mountRing: String
-)
-
-private val knownRendererClassNames = listOf(
-    RendererClassNames(
-        "com.fs.graphics.oOoO", "Ò00000", "com.fs.graphics.Object",
-        "com.fs.starfarer.renderers.E", RENDER_METHOD, "com.fs.starfarer.renderers.M"
-    ),
-    RendererClassNames(
-        "com.fs.graphics.H", "Ò00000", "com.fs.graphics.C",
-        "com.fs.starfarer.renderers.E", RENDER_METHOD, "com.fs.starfarer.renderers.L"
-    ),
-    RendererClassNames(
-        "com.fs.graphics.null", "new", "com.fs.graphics.C",
-        "com.fs.starfarer.renderers.class", RENDER_METHOD, "com.fs.starfarer.renderers.M"
-    ),
-    RendererClassNames(
-        "com.fs.graphics.G", "Ò00000", "com.fs.graphics.Texture",
-        "com.fs.starfarer.renderers.E", "super", "com.fs.starfarer.renderers.M"
-    )
-)
-
 class StrokeStyle(val color: Color, val width: Float, val alpha: Float)
 
 class ArcShape(val centerX: Float, val centerY: Float, val startAngle: Float, val endAngle: Float, val radius: Float)
 
-private class LineHandles(val loadTexture: MethodHandle, val drawEdge: MethodHandle, val drawArc: MethodHandle)
+private class LineHandles(val readTexture: MethodHandle, val drawEdge: MethodHandle, val drawArc: MethodHandle)
 
 private class MountHandles(
     val create: MethodHandle,
@@ -65,7 +35,7 @@ private class MountHandles(
 )
 
 class GameRenderers private constructor(private val lines: LineHandles, private val mounts: MountHandles) {
-    private val lineTexture: Any by lazy { lines.loadTexture.invoke(LINE_TEXTURE_PATH) }
+    private val lineTexture: Any by lazy { checkNotNull(lines.readTexture.invoke(Sprite(LINE_TEXTURE_PATH))) { "The line texture is not loaded" } }
 
     fun weaponColor(type: WeaponAPI.WeaponType): Color = mounts.color.invoke(type) as Color
 
@@ -96,50 +66,39 @@ class GameRenderers private constructor(private val lines: LineHandles, private 
         val instance: GameRenderers? by lazy { findSupported() }
 
         private fun findSupported(): GameRenderers? {
-            val supported = knownRendererClassNames.firstNotNullOfOrNull { resolve(it) }
+            val supported = resolve()
             if (supported == null) {
-                Global.getLogger(GameRenderers::class.java).warn("Weapon arcs are not drawn: unsupported Starsector version")
+                Global.getLogger(GameRenderers::class.java).warn("Weapon arcs are not drawn: the game's renderers were not found")
             }
             return supported
         }
 
-        private fun resolve(names: RendererClassNames): GameRenderers? {
+        private fun resolve(): GameRenderers? {
+            val discovered = discoverRenderers() ?: return null
             return try {
-                val textureType = loadGameClass(names.texture)
-                GameRenderers(lineHandles(names, textureType), mountHandles(loadGameClass(names.mountRing)))
+                GameRenderers(lineHandles(discovered), mountHandles(discovered.mountRing))
             } catch (exception: ReflectiveOperationException) {
                 null
             }
         }
 
-        private fun lineHandles(names: RendererClassNames, textureType: Class<*>): LineHandles {
-            val loader = loadGameClass(names.textureLoader)
-            val renderer = loadGameClass(names.lineRenderer)
-            val edgeSignature = signature(
-                voidType, textureType, floatType, floatType, floatType, floatType, floatType,
-                Color::class.java, floatType, floatType, floatType, booleanType
-            )
-            val arcSignature = signature(
-                voidType, textureType, floatType, floatType, floatType, floatType, floatType, floatType,
-                Color::class.java, intType, intType, floatType
-            )
+        private fun lineHandles(discovered: DiscoveredRenderers): LineHandles {
+            val renderer = discovered.lineRenderer
+            val textureType = discovered.textureType
             return LineHandles(
-                gameLookup.findStatic(loader, names.textureLoaderMethod, signature(textureType, String::class.java)),
-                gameLookup.findStatic(renderer, names.lineRendererMethod, edgeSignature),
-                gameLookup.findStatic(renderer, names.lineRendererMethod, arcSignature)
+                gameLookup.findVirtual(Sprite::class.java, TEXTURE_GETTER, signature(textureType)),
+                gameLookup.findStatic(renderer.type, renderer.drawEdgeName, signature(voidType, *edgeParameters(textureType).toTypedArray())),
+                gameLookup.findStatic(renderer.type, renderer.drawArcName, signature(voidType, *arcParameters(textureType).toTypedArray()))
             )
         }
 
-        private fun mountHandles(ring: Class<*>): MountHandles {
-            val constructorSignature = signature(
-                voidType, WeaponAPI.WeaponType::class.java, WeaponAPI.WeaponSize::class.java, floatType, floatType, booleanType
-            )
+        private fun mountHandles(ring: MountRingMembers): MountHandles {
             return MountHandles(
-                gameLookup.findConstructor(ring, constructorSignature),
-                gameLookup.findStatic(ring, RENDER_METHOD, signature(Color::class.java, WeaponAPI.WeaponType::class.java)),
-                gameLookup.findVirtual(ring, MOUNT_ALPHA_METHOD, signature(voidType, floatType)),
-                gameLookup.findVirtual(ring, RENDER_METHOD, signature(voidType, floatType)),
-                gameLookup.findVirtual(ring, RENDER_METHOD, signature(voidType, floatType, floatType, floatType))
+                gameLookup.findConstructor(ring.type, mountConstructorSignature()),
+                gameLookup.findStatic(ring.type, ring.colorName, signature(Color::class.java, WeaponAPI.WeaponType::class.java)),
+                gameLookup.findVirtual(ring.type, MOUNT_ALPHA_METHOD, signature(voidType, floatType)),
+                gameLookup.findVirtual(ring.type, MOUNT_SCALE_METHOD, signature(voidType, floatType)),
+                gameLookup.findVirtual(ring.type, ring.drawName, signature(voidType, floatType, floatType, floatType))
             )
         }
     }

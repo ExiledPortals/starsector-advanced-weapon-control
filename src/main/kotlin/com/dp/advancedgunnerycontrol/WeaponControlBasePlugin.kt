@@ -1,6 +1,7 @@
 package com.dp.advancedgunnerycontrol
 
 import com.dp.advancedgunnerycontrol.gui.GUIShower
+import com.dp.advancedgunnerycontrol.gui.GameCompatibilityCheck
 import com.dp.advancedgunnerycontrol.settings.LunaSettingHandler
 import com.dp.advancedgunnerycontrol.settings.Settings
 import com.dp.advancedgunnerycontrol.settings.addLunaSettingListener
@@ -16,6 +17,7 @@ class WeaponControlBasePlugin : BaseModPlugin() {
         super.onApplicationLoad()
         Settings.loadSettings()
         logSettings()
+        GameCompatibilityCheck.logProblems()
         if(LunaSettingHandler.isLunaLibPresent){
             addLunaSettingListener { Settings.loadSettings() }
         }
