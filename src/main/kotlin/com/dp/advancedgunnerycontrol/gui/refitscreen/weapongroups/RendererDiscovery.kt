@@ -24,11 +24,26 @@ private val reservedWordNames = listOf(
     "while", "Object", "String"
 )
 
-private val candidateClassNames = ('A'..'Z').map { it.toString() } + ('a'..'z').map { it.toString() } + reservedWordNames
+private const val LOOKALIKE_CHARACTERS = "Oo0"
+private const val LOOKALIKE_NAME_LENGTH = 4
+
+private fun lookalikeNames(length: Int): List<String> {
+    if (length == 0) return listOf("")
+    return lookalikeNames(length - 1).flatMap { prefix -> LOOKALIKE_CHARACTERS.map { prefix + it } }
+}
+
+private val candidateClassNames = ('A'..'Z').map { it.toString() } + ('a'..'z').map { it.toString() } +
+    reservedWordNames + lookalikeNames(LOOKALIKE_NAME_LENGTH)
 
 class LineRendererMembers(val type: Class<*>, val drawEdgeName: String, val drawArcName: String)
 
-class MountRingMembers(val type: Class<*>, val colorName: String, val drawName: String)
+class MountRingMembers(
+    val type: Class<*>,
+    val colorName: String,
+    val drawName: String,
+    val alphaName: String,
+    val scaleName: String
+)
 
 class DiscoveredRenderers(val textureType: Class<*>, val lineRenderer: LineRendererMembers, val mountRing: MountRingMembers)
 
@@ -68,7 +83,19 @@ private fun mountRingIn(type: Class<*>): MountRingMembers? {
     val methods = declaredMethods(type)
     val color = methods.singleOrNull(::isWeaponColorLookup) ?: return null
     val draw = methods.singleOrNull(::isMountDraw) ?: return null
-    return MountRingMembers(type, color.name, draw.name)
+    val floatSetters = methods.filter(::isFloatSetter)
+    val scale = floatSetters.singleOrNull { it.name == color.name } ?: return null
+    val alpha = floatSetters.singleOrNull { isAlphaFamily(it, methods) } ?: return null
+    return MountRingMembers(type, color.name, draw.name, alpha.name, scale.name)
+}
+
+private fun isFloatSetter(method: DeclaredMethod): Boolean {
+    return !method.isStatic && method.returnType == voidType && method.parameterTypes == listOf<Class<*>>(floatType)
+}
+
+private fun isAlphaFamily(setter: DeclaredMethod, methods: List<DeclaredMethod>): Boolean {
+    val family = methods.filter { it.name == setter.name }
+    return family.size == 2 && family.any { it.parameterTypes.isEmpty() && it.returnType == IntArray::class.java }
 }
 
 private fun hasMountConstructor(type: Class<*>): Boolean {

@@ -12,8 +12,6 @@ import java.awt.Color
 import java.lang.invoke.MethodHandle
 
 private const val LINE_TEXTURE_PATH = "graphics/hud/line4x4.png"
-private const val MOUNT_ALPHA_METHOD = "Ô00000"
-private const val MOUNT_SCALE_METHOD = "o00000"
 private const val MOUNT_RADIUS = 40f
 private const val MOUNT_LINE_WIDTH = 2.5f
 private const val BUILT_IN_MOUNT_ALPHA = 0.3f
@@ -96,8 +94,8 @@ class GameRenderers private constructor(private val lines: LineHandles, private 
             return MountHandles(
                 gameLookup.findConstructor(ring.type, mountConstructorSignature()),
                 gameLookup.findStatic(ring.type, ring.colorName, signature(Color::class.java, WeaponAPI.WeaponType::class.java)),
-                gameLookup.findVirtual(ring.type, MOUNT_ALPHA_METHOD, signature(voidType, floatType)),
-                gameLookup.findVirtual(ring.type, MOUNT_SCALE_METHOD, signature(voidType, floatType)),
+                gameLookup.findVirtual(ring.type, ring.alphaName, signature(voidType, floatType)),
+                gameLookup.findVirtual(ring.type, ring.scaleName, signature(voidType, floatType)),
                 gameLookup.findVirtual(ring.type, ring.drawName, signature(voidType, floatType, floatType, floatType))
             )
         }

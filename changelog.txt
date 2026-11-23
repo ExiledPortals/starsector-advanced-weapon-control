@@ -1,5 +1,8 @@
 === For Starsector 0.98a ===
 
+- 1.21.8
+fix: compatible with Starsector 0.98.5a-RC9
+
 - 1.21.7
 fix: crash on startup in 1.21.6 ("File access and reflection are not allowed to scripts")
 
